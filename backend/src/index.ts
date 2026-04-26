@@ -12,8 +12,10 @@ import { connectDatabase } from './config/database';
 import clipboardRoutes from './routes/clipboard';
 import authRoutes from './routes/auth';
 import uploadRoutes from './routes/upload';
+import proRoutes from './routes/pro';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
+import { authenticateToken } from './middleware/auth';
 
 const app: Express = express();
 const PORT = process.env.BACKEND_PORT || 5000;
@@ -56,6 +58,7 @@ app.get('/health', (req: Request, res: Response) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/clipboard', clipboardRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/pro', authenticateToken as any, proRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {
