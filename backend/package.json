@@ -12,9 +12,7 @@
     "test:coverage": "jest --coverage",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
-    "db:migrate": "ts-node -P tsconfig.json ./migrations/run.ts",
-    "db:seed": "ts-node -P tsconfig.json ./migrations/seed.ts",
-    "db:rollback": "ts-node -P tsconfig.json ./migrations/rollback.ts",
+    "setup": "npm install && npm run build",
     "format": "prettier --write \"src/**/*.ts\""
   },
   "keywords": [
