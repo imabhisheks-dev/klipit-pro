@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Login } from './components/Login';
+import { Register } from './components/Register';
 import { ProClipboardCreate } from './components/ProClipboardCreate';
 import { ClipboardVersionHistory } from './components/ClipboardVersionHistory';
 import { SubscriptionDashboard } from './components/SubscriptionDashboard';
@@ -15,6 +17,7 @@ const App: React.FC = () => {
     isLoggedIn: false,
     user: null
   });
+  const [showRegister, setShowRegister] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,18 +26,10 @@ const App: React.FC = () => {
       try {
         const token = localStorage.getItem('token');
         if (token) {
-          // Verify token is still valid by calling a protected endpoint
-          const response = await fetch('http://localhost:5000/health', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
+          setState({
+            isLoggedIn: true,
+            user: JSON.parse(localStorage.getItem('user') || '{}')
           });
-          if (response.ok) {
-            setState({
-              isLoggedIn: true,
-              user: JSON.parse(localStorage.getItem('user') || '{}')
-            });
-          }
         }
       } catch (error) {
         console.error('Auth check failed:', error);
@@ -45,6 +40,22 @@ const App: React.FC = () => {
 
     checkAuth();
   }, []);
+
+  const handleLoginSuccess = (user: any) => {
+    setState({
+      isLoggedIn: true,
+      user
+    });
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setState({
+      isLoggedIn: false,
+      user: null
+    });
+  };
 
   if (loading) {
     return (
@@ -61,20 +72,32 @@ const App: React.FC = () => {
         <header className="app-header">
           <h1>Klipit Pro</h1>
           <p>Secure Clipboard Management</p>
+          {state.isLoggedIn && (
+            <div className="header-user">
+              <span>Welcome, {state.user?.username || state.user?.email}!</span>
+              <button onClick={handleLogout} className="logout-btn">Logout</button>
+            </div>
+          )}
         </header>
 
         <main className="app-main">
           {!state.isLoggedIn ? (
-            <div className="welcome-container">
-              <h2>Welcome to Klipit Pro</h2>
-              <p>Please log in or register to get started.</p>
-              <div className="login-placeholder">
-                <p>Login and Register components coming soon</p>
+            showRegister ? (
+              <Register 
+                onRegisterSuccess={handleLoginSuccess}
+                onSwitchToLogin={() => setShowRegister(false)}
+              />
+            ) : (
+              <div>
+                <Login onLoginSuccess={handleLoginSuccess} />
+                <div className="auth-switch">
+                  <p>Don't have an account? <button onClick={() => setShowRegister(true)} className="link-button">Register</button></p>
+                </div>
               </div>
-            </div>
+            )
           ) : (
             <Routes>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<Dashboard user={state.user} />} />
               <Route path="/create" element={<ProClipboardCreate onClipboardCreated={() => {}} />} />
               <Route path="/history" element={<ClipboardVersionHistory handle="example" />} />
               <Route path="/subscription" element={<SubscriptionDashboard userId={state.user?.id} />} />
@@ -90,13 +113,38 @@ const App: React.FC = () => {
   );
 };
 
-const Dashboard: React.FC = () => {
+interface DashboardProps {
+  user: any;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   return (
     <div className="dashboard">
       <h2>Dashboard</h2>
-      <p>Welcome to your Klipit Pro dashboard</p>
+      <p>Welcome to your Klipit Pro dashboard, {user?.username || user?.email}!</p>
+      
+      <div className="dashboard-grid">
+        <div className="dashboard-card">
+          <h3>📝 Create Clipboard</h3>
+          <p>Create a new Pro clipboard with advanced features</p>
+          <a href="/create" className="dashboard-link">Create</a>
+        </div>
+        
+        <div className="dashboard-card">
+          <h3>📊 Version History</h3>
+          <p>View and restore previous clipboard versions</p>
+          <a href="/history" className="dashboard-link">View History</a>
+        </div>
+        
+        <div className="dashboard-card">
+          <h3>⭐ Subscription</h3>
+          <p>Manage your Pro subscription and features</p>
+          <a href="/subscription" className="dashboard-link">View Subscription</a>
+        </div>
+      </div>
     </div>
   );
+};
 };
 
 export default App;
