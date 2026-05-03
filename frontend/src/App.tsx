@@ -76,7 +76,7 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/create" element={<ProClipboardCreate onClipboardCreated={() => {}} />} />
-              <Route path="/history" element={<ClipboardVersionHistory clipboardHandle="example" />} />
+              <Route path="/history" element={<ClipboardVersionHistory handle="example" />} />
               <Route path="/subscription" element={<SubscriptionDashboard userId={state.user?.id} />} />
             </Routes>
           )}
