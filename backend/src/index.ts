@@ -2,6 +2,7 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import swaggerUi from 'swagger-ui-express';
 import dotenv from 'dotenv';
 import path from 'path';
 
@@ -9,6 +10,7 @@ import path from 'path';
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
 import { connectDatabase } from './config/database';
+import { swaggerSpec } from './config/swagger';
 import clipboardRoutes from './routes/clipboard';
 import authRoutes from './routes/auth';
 import uploadRoutes from './routes/upload';
@@ -48,6 +50,21 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(requestLogger);
 
 // ==================== ROUTES ====================
+
+// Swagger documentation
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  swaggerOptions: {
+    url: '/swagger.json',
+    persistAuthorization: true,
+  },
+  customCss: '.swagger-ui .topbar { display: none }',
+}));
+
+// Swagger spec endpoint
+app.get('/swagger.json', (req: Request, res: Response) => {
+  res.setHeader('content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
