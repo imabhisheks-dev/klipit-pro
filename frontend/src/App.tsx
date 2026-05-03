@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import ProClipboardCreate from './components/ProClipboardCreate';
-import ClipboardVersionHistory from './components/ClipboardVersionHistory';
-import SubscriptionDashboard from './components/SubscriptionDashboard';
+import { ProClipboardCreate } from './components/ProClipboardCreate';
+import { ClipboardVersionHistory } from './components/ClipboardVersionHistory';
+import { SubscriptionDashboard } from './components/SubscriptionDashboard';
 import './styles/App.css';
 
 interface AppState {
